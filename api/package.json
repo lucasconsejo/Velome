@@ -1,0 +1,17 @@
+{
+  "name": "velome",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "lucasconsejo",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "http-errors": "^2.0.0",
+    "prom-client": "^15.0.0"
+  }
+}

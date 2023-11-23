@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    container_name: api
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring
+
+  app:
+    build:
+      context: ./app
+    restart: unless-stopped
+    container_name: app
+    environment:
+      VITE_API_BASE_URL: http://api:8080
+      VITE_DASHBOARD_URL: http://grafana:4000
+    ports:
+      - "3000:80"
+    networks:
+      - monitoring
+    depends_on:
+      - api
+      - grafana
+
+  prometheus:
+    image: prom/prometheus
+    restart: unless-stopped
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus_data:/prometheus
+      - ./docker/prometheus/config:/etc/prometheus
+    networks:
+      - monitoring
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    container_name: grafana
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/velome_dashboard.json
+    ports:
+      - "4000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+networks:
+  monitoring:
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}

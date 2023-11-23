@@ -1,0 +1,16 @@
+FROM node:20
+ARG PORT
+ARG PROMETHEUS_URL
+
+ENV PORT=$PORT
+ENV PROMETHEUS_URL=$PROMETHEUS_URL
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN yarn install
+COPY . .
+
+EXPOSE $PORT
+
+CMD ["yarn", "start"]
